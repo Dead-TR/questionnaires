@@ -20,7 +20,6 @@ const modalSplitter = "/modal/";
 export const PathProvider: FC<Props> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  console.log("🚀 ~ file: index.tsx:23 ~ location:", location)
 
   const getPath = () => {
     const { pathname } = location;

@@ -3,6 +3,7 @@ import { ComponentType, LazyExoticComponent } from "react";
 export interface PageData {
   component?: (() => JSX.Element) | LazyExoticComponent<ComponentType<any>>;
   redirect?: string;
+  adminOnly?: boolean;
 }
 
 type PageContent = {

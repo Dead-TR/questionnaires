@@ -1,9 +1,12 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 
 import css from "./style.module.scss";
 
 const Home = () => {
-  return <div className={css.root}>Home</div>;
+  const [cards, setCards] = useState([])
+  return <div className={css.root}>
+    
+  </div>;
 };
 
 export default memo(Home);

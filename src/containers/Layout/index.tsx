@@ -45,6 +45,21 @@ const Layout = () => {
               px: 2,
             }}
             onClick={() => {
+              page.navigate("/create");
+              handleClose();
+            }}>
+            Add Profile
+          </Button>
+        </Box>
+
+        <Box>
+          <Button
+            sx={{
+              py: 1,
+              px: 2,
+              width: "100%",
+            }}
+            onClick={() => {
               sightOut();
               handleClose();
             }}>

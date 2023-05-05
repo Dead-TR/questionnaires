@@ -3,7 +3,7 @@ import { BrowserRouter, HashRouter } from "react-router-dom";
 
 import { PathProvider } from "hooks";
 import { fireBaseApp } from "config/fireBase";
-import { AuthProvider } from "./list";
+import { AuthProvider, ProfilesProvider } from "./list";
 
 interface Props {
   children?: React.ReactNode;
@@ -18,7 +18,9 @@ const Providers: FC<Props> = ({ children }) => {
       <BrowserRouter>
         <PathProvider>
           <AuthProvider>
-            <>{children}</>
+            <ProfilesProvider>
+              <>{children}</>
+            </ProfilesProvider>
           </AuthProvider>
         </PathProvider>
       </BrowserRouter>
