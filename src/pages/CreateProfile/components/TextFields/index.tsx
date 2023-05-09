@@ -63,7 +63,6 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
     handleChange("country", value);
   };
 
-
   return (
     <Box
       sx={{
@@ -82,6 +81,7 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
         onChange={({ target }) => {
           handleChange("name", target.value);
         }}
+        error={!state.name}
       />
       <LocalizationProvider dateAdapter={AdapterMoment}>
         <DatePicker
@@ -90,7 +90,7 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
             const birth = v.valueOf();
             handleChange("birthday", birth);
           }}
-          value={state.birthday || 'DD/MM/YYYY'}
+          value={state.birthday || "DD/MM/YYYY"}
         />
       </LocalizationProvider>
       <TextField
@@ -118,6 +118,7 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
         renderInput={(params) => (
           <TextField {...params} label="Marital Status" variant="outlined" />
         )}
+        value={state.marital}
       />
       <TextField
         label="Job"
@@ -125,6 +126,7 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
         onChange={({ target }) => {
           handleChange("job", target.value);
         }}
+        value={state.job}
       />
 
       <Autocomplete
