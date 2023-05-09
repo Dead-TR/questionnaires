@@ -1,40 +1,31 @@
-import { memo, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import Dropzone from "react-dropzone";
-import {
-  Autocomplete,
-  Box,
-  Card,
-  Container,
-  Stack,
-  TextField,
-} from "@mui/material";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-//@ts-ignore
-import moment from "moment";
+import clsx from "clsx";
+import { Alert, Box, Button, Card, Container, Snackbar } from "@mui/material";
+import { UploadResult, ref, uploadBytes } from "firebase/storage";
+import { doc, setDoc } from "firebase/firestore";
 
-import { getFetch } from "utils/fetch";
+import { fireBaseDataBase, fireBaseStorage } from "config/fireBase";
+import { usePath } from "hooks";
+
+import { TextFields } from "./components";
+import { PhotosState, ProfileState } from "./type";
 import css from "./style.module.scss";
-import { Country, CountryFetch } from "./type";
-import debounce from "lodash.debounce";
+import { Loader } from "components/Loader";
 
-const wait = debounce((f: () => void) => {
-  f();
-}, 50);
-
-moment.updateLocale("en", {
-  week: {
-    dow: 1,
-  },
-});
+const getFileTypeReg = /\.[0-9a-z]+$/i;
 
 const CreateProfile = () => {
   const dragCard = useRef<HTMLDivElement>(null);
+  const { page } = usePath();
 
-  const [countries, setCountries] = useState<Country[]>([]);
-  const [photos, setPhotos] = useState<string[]>([]);
-  const [state, setState] = useState({
+  const ID = useRef("0");
+  const oldData = useRef({
+    name: "",
+    photo: "",
+  });
+  const [photos, setPhotos] = useState<PhotosState[]>([]);
+  const [state, setState] = useState<ProfileState>({
     name: "",
     birthday: 0,
     children: 0,
@@ -42,8 +33,11 @@ const CreateProfile = () => {
     job: "",
     country: "",
     city: "",
+
+    etc: "",
   });
-  console.log("🚀 ~ file: index.tsx:46 ~ CreateProfile ~ state:", state);
+  const [loading, setLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const toggle = (add: boolean) => {
     if (!dragCard.current) return;
@@ -53,174 +47,172 @@ const CreateProfile = () => {
     else classList.remove(css.activeCard);
   };
 
-  const handleChange = <K extends keyof typeof state>(
-    key: K,
-    value: (typeof state)[K],
-  ) => {
-    setState((old) => ({ ...old, [key]: value }));
-  };
-
-  const getCounty = (value: string) => {
-    setCountries([]);
-    const request = async () => {
-      if (!value) return;
-
-      const result = await getFetch<CountryFetch[]>(
-        `https://restcountries.com/v3.1/name/${value}`,
-      );
-
-      setCountries(
-        (result.data || [])?.map(({ flag, name: { common, official } }) => ({
-          flag,
-          name: official,
-        })),
-      );
+  const handleClear = () => {
+    oldData.current = {
+      name: state.name,
+      photo: photos[0]?.link,
     };
 
-    wait(() => {
-      request();
+    setPhotos([]);
+    setState({
+      name: "",
+      birthday: 0,
+      children: 0,
+      marital: "",
+      job: "",
+      country: "",
+      city: "",
+      etc: "",
     });
-
-    handleChange("country", value);
+    ID.current = ("" + Date.now()).substring(4);
   };
 
+  const sendData = async () => {
+    setLoading(true);
+    try {
+      if (photos.length) {
+        const imgRefs = photos.map((photo, i) => {
+          const fileFormat = photo.file.name.match(getFileTypeReg);
+          if (!fileFormat) return null;
+
+          const imgName = `${ID.current}/${i}${fileFormat[0]}`;
+          return {
+            ref: ref(fireBaseStorage, imgName),
+            name: imgName,
+          };
+        });
+
+        const result = await Promise.all<UploadResult | null>(
+          imgRefs.map((element, i) => {
+            if (!element) return new Promise((r) => r(null));
+
+            const photo = photos[i];
+
+            return uploadBytes(element.ref, photo.file);
+          }),
+        );
+
+        const links = result.map((v) => v?.metadata.fullPath);
+
+        const res = await setDoc(
+          doc(fireBaseDataBase, "profiles", ID.current),
+          {
+            ...state,
+            photos: links,
+          },
+        );
+
+        console.log(" > ", res);
+      }
+
+      handleClear();
+      setIsSuccess(true);
+    } catch (error) {
+      console.log(error);
+    }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    ID.current = ("" + Date.now()).substring(4);
+  }, []);
+
   return (
-    <Container sx={{ py: 5 }}>
-      <Box sx={{ mx: "auto", maxWidth: 550 }}>
-        <Dropzone
-          onDrop={(acceptedFiles) => {
-            const links = acceptedFiles.map((v) => URL.createObjectURL(v));
-            setPhotos(links);
-          }}
-          onDragOver={() => toggle(true)}
-          onDragLeave={() => toggle(false)}>
-          {({ getRootProps, getInputProps }) => {
-            const props = getRootProps();
-
-            return (
-              <Card variant="outlined" sx={{ p: 5 }} {...props} ref={dragCard}>
-                <input {...getInputProps()} />
-                <p className={css.text}>Add Photos</p>
-              </Card>
-            );
-          }}
-        </Dropzone>
-      </Box>
-
-      <Box sx={{ my: 4 }}>
-        <div className={css.imgWrapper}>
-          {photos.map((v, i) => {
-            return (
-              <img
-                src={v}
-                alt={"" + i}
-                loading="lazy"
-                onClick={() => {
-                  const updatePhotos = photos.filter((img) => img !== v);
-                  setPhotos(updatePhotos);
-                }}
-              />
-            );
-          })}
-        </div>
-      </Box>
-
-      <Box
+    <>
+      <Container
         sx={{
-          my: 4,
-          maxWidth: 900,
-          width: "100%",
-          mx: "auto",
-          display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
-          gap: 2,
-        }}>
-        <TextField
-          label="Full Name"
-          variant="outlined"
-          value={state.name}
-          onChange={({ target }) => {
-            handleChange("name", target.value);
-          }}
-        />
-        <LocalizationProvider dateAdapter={AdapterMoment}>
-          <DatePicker
-            format="DD/MM/YYYY"
-            onChange={(v: any) => {
-              const birth = v.valueOf();
-              handleChange("birthday", birth);
+          py: 5,
+          overflow: "auto",
+        }}
+        className={clsx(loading && css.load)}>
+        <Box sx={{ mx: "auto", maxWidth: 550 }}>
+          <Dropzone
+            onDrop={(acceptedFiles) => {
+              const photos = acceptedFiles.map((file) => ({
+                file,
+                link: URL.createObjectURL(file),
+              }));
+              setPhotos((old) => [...old, ...photos]);
             }}
-          />
-        </LocalizationProvider>
-        <TextField
-          label="Children"
-          type="number"
-          variant="outlined"
-          value={state.children}
-          defaultValue={state.children}
-          onChange={({ target }) => {
-            const amount = Number(target.value);
-            handleChange("children", Math.max(0, amount));
-          }}
-        />
-        <Autocomplete
-          freeSolo
-          options={["Single", "Married", "Divorced", "Widowed"]}
-          onChange={({ target }) => {
-            const value = (target as HTMLElement)?.innerText || "";
-            handleChange("marital", value);
-          }}
-          onBlur={({ target }) => {
-            const value = (target as HTMLInputElement)?.value || "";
-            handleChange("marital", value);
-          }}
-          renderInput={(params) => (
-            <TextField {...params} label="Marital Status" variant="outlined" />
-          )}
-        />
-        <TextField
-          label="Job"
-          variant="outlined"
-          onChange={({ target }) => {
-            handleChange("job", target.value);
-          }}
-        />
+            onDragOver={() => toggle(true)}
+            onDragLeave={() => toggle(false)}>
+            {({ getRootProps, getInputProps }) => {
+              const props = getRootProps();
 
-        <Autocomplete
-          freeSolo
-          open={!!countries.length}
-          options={countries.map(({ flag, name }) => `${flag} ${name}`)}
-          onChange={({ target }) => {
-            const value = (target as HTMLElement)?.innerText || "";
-            getCounty(value);
+              return (
+                <Card
+                  variant="outlined"
+                  sx={{ p: 5 }}
+                  {...props}
+                  ref={dragCard}>
+                  <input {...getInputProps()} />
+                  <p className={css.text}>Add Photos</p>
+                </Card>
+              );
+            }}
+          </Dropzone>
+        </Box>
+
+        <Box sx={{ my: 4 }}>
+          <div className={css.imgWrapper}>
+            {photos.map((v, i) => {
+              return (
+                <img
+                  src={v.link}
+                  alt={"" + i}
+                  className={clsx(i === 0 && css.avatar)}
+                  loading="lazy"
+                  onClick={() => {
+                    const updatePhotos = photos.sort((a, b) =>
+                      a.link === v.link ? -1 : b.link === v.link ? 1 : 0,
+                    );
+                    setPhotos([...updatePhotos]);
+                  }}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    const updatePhotos = photos.filter((img) => img !== v);
+                    setPhotos(updatePhotos);
+                  }}
+                />
+              );
+            })}
+          </div>
+        </Box>
+
+        <TextFields {...{ state, setState }} />
+
+        <Button
+          sx={{
+            m: "0 auto",
+            display: "block",
+            minWidth: 200,
+            p: 1.5,
           }}
-          onBlur={({ target }) => {
-            const value = (target as HTMLInputElement)?.value || "";
-            getCounty(value);
-          }}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Country"
-              variant="outlined"
-              onChange={({ target }) => {
-                getCounty(target.value);
-              }}
+          variant="contained"
+          disabled={loading || !state.name || !state.birthday || !photos.length}
+          onClick={sendData}>
+          {loading ? <Loader size={25} /> : "Send"}
+        </Button>
+      </Container>
+
+      <Snackbar
+        open={isSuccess}
+        autoHideDuration={2000}
+        onClose={() => setIsSuccess(false)}>
+        <Alert icon={false} severity="info">
+          <Box>
+            <span className={css.subTitle}>Profile created!</span>
+            <h1 className={css.name}>{oldData.current.name}</h1>
+            <img
+              src={oldData.current.photo}
+              alt="avatar"
+              className={css.helpAvatar}
             />
-          )}
-        />
-
-        <div />
-
-        <TextField
-          label="City"
-          variant="outlined"
-          onChange={({ target }) => {
-            handleChange("city", target.value);
-          }}
-        />
-      </Box>
-    </Container>
+          </Box>
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 

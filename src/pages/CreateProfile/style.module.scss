@@ -55,3 +55,53 @@
     }
   }
 }
+
+.textArea {
+  --joy-palette-neutral-outlinedHoverBorder: rgba(0, 0, 0, 0.87);
+
+  border: 1px solid rgba(0, 0, 0, 0.23);
+  background: transparent;
+
+  &:hover {
+    border-color: rgba(0, 0, 0, 0.87);
+  }
+}
+
+.avatar {
+  border: 4px solid rgb(0, 184, 175);
+  border-radius: 15px;
+}
+
+.load {
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: wait;
+}
+
+.name {
+  font-size: 1.5rem;
+}
+
+.subTitle {
+  font-size: 1.2rem;
+}
+.helpAvatar {
+  max-width: 200px;
+  max-height: 200px;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.helpAvatar,
+.name,
+.subTitle {
+  text-align: center;
+  display: block;
+  margin: 0 auto;
+
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 180px;
+  text-overflow: ellipsis;
+}
