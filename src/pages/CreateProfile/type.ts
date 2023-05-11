@@ -28,3 +28,7 @@ export interface PhotosState {
   file: File;
   link: string;
 }
+
+export interface Profile extends ProfileState {
+  photos: string[];
+}

@@ -10,3 +10,4 @@ export * from "./rangeBetween";
 export * from "./copy";
 export * from "./fontLoader";
 export * from "./fetch";
+export * from "./deleteProfileFromServer";

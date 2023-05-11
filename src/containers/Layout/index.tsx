@@ -86,7 +86,7 @@ const Layout = () => {
                 borderRadius: 0,
                 textTransform: "capitalize",
               }}>
-              Home
+              Profiles
             </Button>
 
             {user && (

@@ -75,7 +75,7 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
         gap: 2,
       }}>
       <TextField
-        label="Full Name"
+        label="Name"
         variant="outlined"
         value={state.name}
         onChange={({ target }) => {

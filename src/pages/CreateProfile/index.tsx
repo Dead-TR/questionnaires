@@ -6,18 +6,19 @@ import { UploadResult, ref, uploadBytes } from "firebase/storage";
 import { doc, setDoc } from "firebase/firestore";
 
 import { fireBaseDataBase, fireBaseStorage } from "config/fireBase";
-import { usePath } from "hooks";
+import { Loader } from "components/Loader";
+import { useProfiles } from "containers";
 
 import { TextFields } from "./components";
-import { PhotosState, ProfileState } from "./type";
+import { PhotosState, Profile, ProfileState } from "./type";
 import css from "./style.module.scss";
-import { Loader } from "components/Loader";
+import { getImgLinkFromFireBase } from "utils/getImgLinkFromFireBase";
 
 const getFileTypeReg = /\.[0-9a-z]+$/i;
 
 const CreateProfile = () => {
   const dragCard = useRef<HTMLDivElement>(null);
-  const { page } = usePath();
+  const { setProfiles } = useProfiles();
 
   const ID = useRef("0");
   const oldData = useRef({
@@ -92,17 +93,27 @@ const CreateProfile = () => {
           }),
         );
 
-        const links = result.map((v) => v?.metadata.fullPath);
-
-        const res = await setDoc(
-          doc(fireBaseDataBase, "profiles", ID.current),
-          {
-            ...state,
-            photos: links,
-          },
+        const links = await Promise.all(
+          result.map(async (v) => {
+            return await getImgLinkFromFireBase(v?.metadata.fullPath || "");
+          }),
         );
 
-        console.log(" > ", res);
+        if (!links) {
+          throw new Error(`cant send Photos: ${JSON.stringify(links)}`);
+        }
+
+        const newProfile: Profile = {
+          ...state,
+          photos: links as string[],
+        };
+
+        await setDoc(doc(fireBaseDataBase, "profiles", ID.current), newProfile);
+
+        setProfiles((old) => ({
+          ...old,
+          [ID.current]: newProfile,
+        }));
       }
 
       handleClear();
@@ -190,7 +201,7 @@ const CreateProfile = () => {
             p: 1.5,
           }}
           variant="contained"
-          disabled={loading || !state.name || !state.birthday || !photos.length}
+          disabled={loading || !state.name || !photos.length}
           onClick={sendData}>
           {loading ? <Loader size={25} /> : "Send"}
         </Button>

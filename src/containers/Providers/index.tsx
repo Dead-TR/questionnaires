@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { BrowserRouter, HashRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 
 import { PathProvider } from "hooks";
 import { fireBaseApp } from "config/fireBase";
