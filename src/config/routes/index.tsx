@@ -3,6 +3,7 @@ import { lazyLoad } from "../utils";
 export * from "./types";
 
 const Home = lazyLoad(() => import("pages/Home"));
+const Profile = lazyLoad(() => import("pages/Profile"));
 const _404 = lazyLoad(() => import("pages/_404"));
 
 const Auth = lazyLoad(() => import("pages/Auth"));
@@ -15,6 +16,19 @@ export const routes: PagesRoute = {
   "/": {
     data: {
       component: Home,
+    },
+  },
+
+  profile: {
+    data: {
+      component: Profile,
+      redirect: "/",
+    },
+
+    "*": {
+      data: {
+        component: Profile,
+      },
     },
   },
 

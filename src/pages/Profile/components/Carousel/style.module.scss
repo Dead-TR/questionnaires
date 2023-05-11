@@ -1,0 +1,42 @@
+.box {
+  width: 100%;
+  height: 100%;
+  max-width: 400px;
+  max-height: 700px;
+}
+
+$thumbHeight: 45px;
+
+.swiper {
+  height: calc(100% - #{$thumbHeight});
+}
+
+.slide {
+}
+
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbWrapper {
+  transition: opacity 0.3s;
+  opacity: 0.5;
+  height: $thumbHeight;
+
+  &.active {
+    opacity: 1;
+  }
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  max-height: $thumbHeight;
+  object-fit: cover;
+}
+
+.swipes {
+}
