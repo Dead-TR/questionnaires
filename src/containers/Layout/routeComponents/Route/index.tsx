@@ -6,7 +6,6 @@ import { usePath } from "hooks";
 import { useAuth } from "containers/Providers";
 
 const { pages } = createRoute();
-console.log("🚀 ~ file: index.tsx:9 ~ pages:", pages);
 
 export const Routes = () => {
   const { page } = usePath();

@@ -20,7 +20,7 @@ const Layout = () => {
   return (
     <>
       <Helmet>
-        <title>Projects</title>
+        <title>Date</title>
       </Helmet>
 
       <Popover
