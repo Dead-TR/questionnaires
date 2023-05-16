@@ -1,10 +1,14 @@
-import { usePath } from "hooks";
-import css from "./style.module.scss";
-import { useProfiles } from "containers";
 import { useEffect, useState } from "react";
-import { FallBack } from "components/FallBack";
 import { Box, Container, Typography } from "@mui/material";
+
+import { usePath } from "hooks";
+import { useProfiles } from "containers";
+
+import { FallBack } from "components/FallBack";
 import { getAge } from "utils/getAge";
+import dateFormat from "dateformat";
+
+import css from "./style.module.scss";
 import { Carousel } from "./components";
 
 const Profile = () => {
@@ -24,43 +28,104 @@ const Profile = () => {
   const { name, birthday, photos, children, city, country, job, marital, etc } =
     profiles[id] || {};
 
+  const isWithMainContent =
+    birthday || marital || job || children || country || city;
+
   return (
     <>
       <FallBack show={loading} />
       <div className={css.root}>
         <Container>
-          <Box>
-            <Typography
-              sx={{ fontSize: 34, fontWeight: "bold", lineHeight: 1 }}>
-              {name}
-            </Typography>
-            <Typography sx={{ fontSize: 18, marginBottom: 2 }}>
-              {birthday ? `Age: ${getAge(birthday)}` : ""}
-            </Typography>
+          <Typography sx={{ fontSize: 34, fontWeight: "bold", lineHeight: 1 }}>
+            {name}
+          </Typography>
+          <Typography sx={{ fontSize: 18, marginBottom: 2 }}>
+            {birthday ? `Age: ${getAge(birthday)}` : ""}
+          </Typography>
 
+          <Box
+            sx={{
+              display: "flex",
+            }}>
             <Box
               sx={{
-                position: "relative",
-                maxWidth: 400,
-                cursor: "pointer",
-                borderRadius: 2,
-                overflow: "hidden",
-              }}
-              onClick={() => setIsOpenCarousel(true)}>
-              <img
-                src={photos ? photos[0] || "" : ""}
-                alt={name}
-                className={css.avatar}
-              />
-              <div className={css.etcImg}>
-                {photos?.map((link, i) => {
-                  if (!i) return null;
-                  return <img src={link} alt={"photo_" + i} />;
-                })}
-              </div>
+                flexBasis: "100%",
+              }}>
+              <Box
+                sx={{
+                  position: "relative",
+                  maxWidth: 400,
+                  width: "100%",
+                  cursor: "pointer",
+                  borderRadius: 2,
+                  overflow: "hidden",
+                }}
+                onClick={() => setIsOpenCarousel(true)}>
+                <img
+                  src={photos ? photos[0] || "" : ""}
+                  alt={name}
+                  className={css.avatar}
+                />
+                <div className={css.etcImg}>
+                  {photos?.map((link, i) => {
+                    if (!i) return null;
+                    return <img src={link} alt={"photo_" + i} />;
+                  })}
+                </div>
+              </Box>
+            </Box>
+            <Box className={css.data}>
+              {isWithMainContent ? (
+                <Box className={css.mainContent}>
+                  {birthday ? (
+                    <Box>
+                      <Typography>Date of Birth:</Typography>
+                      <Typography>
+                        {dateFormat(birthday, "dd.mm.yyyy")}
+                      </Typography>
+                    </Box>
+                  ) : null}
+
+                  {marital ? (
+                    <Box>
+                      <Typography>Marital:</Typography>
+                      <Typography>{marital}</Typography>
+                    </Box>
+                  ) : null}
+
+                  {job ? (
+                    <Box>
+                      <Typography>Job:</Typography>
+                      <Typography>{job}</Typography>
+                    </Box>
+                  ) : null}
+
+                  {children ? (
+                    <Box>
+                      <Typography>Children:</Typography>
+                      <Typography>{children}</Typography>
+                    </Box>
+                  ) : null}
+
+                  {country ? (
+                    <Box>
+                      <Typography>Country:</Typography>
+                      <Typography>{country}</Typography>
+                    </Box>
+                  ) : null}
+
+                  {city ? (
+                    <Box>
+                      <Typography>City:</Typography>
+                      <Typography>{city}</Typography>
+                    </Box>
+                  ) : null}
+                </Box>
+              ) : null}
+
+              {etc ? <Typography>{etc}</Typography> : null}
             </Box>
           </Box>
-          <Box></Box>
         </Container>
       </div>
 
