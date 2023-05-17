@@ -10,9 +10,13 @@ import moment from "moment";
 import debounce from "lodash.debounce";
 import { Textarea } from "@mui/joy";
 
+import dateformat from "dateformat";
+
 import { ProfileState, Country, CountryFetch } from "pages/CreateProfile/type";
 import { getFetch } from "utils/fetch";
+import { sleep } from "utils";
 import css from "../../style.module.scss";
+import clsx from "clsx";
 
 const wait = debounce((f: () => void) => {
   f();
@@ -31,6 +35,8 @@ interface Props {
 
 export const TextFields: FC<Props> = ({ state, setState }) => {
   const [countries, setCountries] = useState<Country[]>([]);
+  const [showText, setShowText] = useState(true);
+  const input = useRef<HTMLInputElement>(null);
 
   const handleChange = <K extends keyof typeof state>(
     key: K,
@@ -63,6 +69,12 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
     handleChange("country", value);
   };
 
+  useEffect(() => {
+    input.current?.addEventListener("focus", () => {
+      setShowText(false);
+    });
+  }, []);
+
   return (
     <Box
       sx={{
@@ -83,16 +95,26 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
         }}
         error={!state.name}
       />
-      <LocalizationProvider dateAdapter={AdapterMoment}>
-        <DatePicker
-          format="DD/MM/YYYY"
-          onChange={(v: any) => {
-            const birth = v.valueOf();
-            handleChange("birthday", birth);
-          }}
-          value={state.birthday || "DD/MM/YYYY"}
-        />
-      </LocalizationProvider>
+      <div className={clsx(css.dateWrapper, showText && css.hideDate)}>
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+          <DatePicker
+            format="DD/MM/YYYY"
+            onChange={(v: any) => {
+              const birth = v.valueOf();
+              handleChange("birthday", birth);
+            }}
+            inputRef={input}
+          />
+        </LocalizationProvider>
+
+        {showText && (
+          <div className={css.dateFormat}>
+            {state.birthday ? (
+              <span>{dateformat(state.birthday, "dd/mm/yyyy")}</span>
+            ) : null}
+          </div>
+        )}
+      </div>
       <TextField
         label="Children"
         type="number"

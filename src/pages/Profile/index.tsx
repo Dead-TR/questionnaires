@@ -35,7 +35,11 @@ const Profile = () => {
     <>
       <FallBack show={loading} />
       <div className={css.root}>
-        <Container>
+        <Container
+          sx={{
+            opacity: loading ? 0 : 1,
+            transition: "opacity 0.3s",
+          }}>
           <Typography sx={{ fontSize: 34, fontWeight: "bold", lineHeight: 1 }}>
             {name}
           </Typography>

@@ -25,10 +25,11 @@ export interface ProfileState {
 }
 
 export interface PhotosState {
-  file: File;
+  file?: File;
   link: string;
 }
 
 export interface Profile extends ProfileState {
   photos: string[];
+  photoRefs?: string[];
 }

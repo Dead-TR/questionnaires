@@ -13,14 +13,19 @@ import { TextFields } from "./components";
 import { PhotosState, Profile, ProfileState } from "./type";
 import css from "./style.module.scss";
 import { getImgLinkFromFireBase } from "utils/getImgLinkFromFireBase";
+import { usePath } from "hooks";
+import { FallBack } from "components/FallBack";
+import { sleep } from "utils";
 
 const getFileTypeReg = /\.[0-9a-z]+$/i;
 
 const CreateProfile = () => {
   const dragCard = useRef<HTMLDivElement>(null);
-  const { setProfiles } = useProfiles();
+  const { page } = usePath();
+  const { setProfiles, profiles, loading: isLoad } = useProfiles();
 
   const ID = useRef("0");
+
   const oldData = useRef({
     name: "",
     photo: "",
@@ -39,6 +44,7 @@ const CreateProfile = () => {
   });
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [checkIsEditor, setCheckIsEditor] = useState(false);
 
   const toggle = (add: boolean) => {
     if (!dragCard.current) return;
@@ -72,8 +78,9 @@ const CreateProfile = () => {
     setLoading(true);
     try {
       if (photos.length) {
-        const imgRefs = photos.map((photo, i) => {
-          const fileFormat = photo.file.name.match(getFileTypeReg);
+        const sendPhotos = photos.filter((p) => !!p.file); //do NOT send items for which there is no blob
+        const imgRefs = sendPhotos.map((photo, i) => {
+          const fileFormat = photo.file!.name.match(getFileTypeReg); //! -- because filter
           if (!fileFormat) return null;
 
           const imgName = `${ID.current}/${i}${fileFormat[0]}`;
@@ -89,7 +96,7 @@ const CreateProfile = () => {
 
             const photo = photos[i];
 
-            return uploadBytes(element.ref, photo.file);
+            return uploadBytes(element.ref, photo.file as File); //! -- because filter
           }),
         );
 
@@ -126,8 +133,48 @@ const CreateProfile = () => {
   };
 
   useEffect(() => {
-    ID.current = ("" + Date.now()).substring(4);
-  }, []);
+    const [pageName, currentId] = page.path.substring(1).split("/");
+
+    ID.current = currentId || ("" + Date.now()).substring(4);
+
+    const currentProfile = profiles[currentId];
+
+    if (pageName === "edit") {
+      if (!(!isLoad && currentProfile)) return;
+
+      const {
+        name = "",
+        birthday = 0,
+        children = 0,
+        city = "",
+        country = "",
+        job = "",
+        marital = "",
+        photos = [],
+        etc = "",
+      } = currentProfile;
+      const prepareEditor = async () => {
+        setPhotos(photos.map((link) => ({ link })));
+        setState({
+          name,
+          birthday,
+          children,
+          marital,
+          job,
+          city,
+          country,
+          etc,
+        });
+
+        await sleep(0);
+        setCheckIsEditor(true);
+      };
+
+      prepareEditor();
+    } else {
+      setCheckIsEditor(true);
+    }
+  }, [page, isLoad]);
 
   return (
     <>
@@ -191,7 +238,9 @@ const CreateProfile = () => {
           </div>
         </Box>
 
-        <TextFields {...{ state, setState }} />
+        {checkIsEditor && !isLoad ? (
+          <TextFields {...{ state, setState }} />
+        ) : null}
 
         <Button
           sx={{

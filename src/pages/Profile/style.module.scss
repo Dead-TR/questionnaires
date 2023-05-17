@@ -27,6 +27,12 @@
 .avatar,
 .etcImg {
   pointer-events: none;
+  border: none;
+}
+
+.avatar,
+.etcImg > img {
+  background: rgb(158, 236, 252);
 }
 
 .data {

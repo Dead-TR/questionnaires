@@ -3,7 +3,7 @@ import { getDownloadURL, ref } from "firebase/storage";
 
 export const getImgLinkFromFireBase = async (link: string) => {
   const linkRef = ref(fireBaseStorage, link);
-  const img = await getDownloadURL(linkRef);
+  const url = await getDownloadURL(linkRef);
 
-  return img;
+  return url;
 };

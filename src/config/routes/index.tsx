@@ -21,13 +21,25 @@ export const routes: PagesRoute = {
 
   profile: {
     data: {
-      component: Profile,
       redirect: "/",
     },
 
     "*": {
       data: {
         component: Profile,
+      },
+    },
+  },
+
+  edit: {
+    data: {
+      redirect: "/",
+    },
+
+    "*": {
+      data: {
+        component: CreateProfile,
+        adminOnly: true,
       },
     },
   },
@@ -47,7 +59,8 @@ export const routes: PagesRoute = {
 
   "*": {
     data: {
-      component: _404,
+      // component: _404,
+      redirect: "/",
     },
   },
 };

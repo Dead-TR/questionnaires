@@ -14,17 +14,25 @@
   &:hover {
     transform: scale(1.05);
 
-    & .close {
+    & .adminButton {
       transform: scale(1);
       opacity: 1;
     }
   }
-}
 
-.close {
-  transform: scale(0);
-  opacity: 0;
-  transition: transform 0.2s, opacity 0.2s;
+  .adminButton {
+    transform: scale(0);
+    opacity: 0;
+    transition: transform 0.2s, opacity 0.2s;
+
+    color: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    padding: 0px;
+  }
 }
 
 .avatar {

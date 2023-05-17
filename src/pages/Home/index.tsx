@@ -1,55 +1,24 @@
-import { memo, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  Alert,
-  Button,
-  Card,
-  Pagination,
-  Snackbar,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Card, Pagination, Typography } from "@mui/material";
+
 import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
 
 import { getAge } from "utils/getAge";
 import { FallBack } from "components/FallBack";
 import { useAuth, useProfiles } from "containers";
 import css from "./style.module.scss";
-import { deleteProfileFromServer } from "utils";
+import { usePath } from "hooks";
 
 const maxProfilesPerPage = 20;
 
 const Home = () => {
-  const { profiles, setProfiles, loading } = useProfiles();
+  const { profiles, removeProfile, loading } = useProfiles();
   const { user } = useAuth();
-  const [isDel, setIsDel] = useState<{
-    isOpen: boolean;
-    severity: "success" | "error";
-  }>({
-    isOpen: false,
-    severity: "success",
-  });
+  const { page: nav } = usePath();
+
   const [page, setPage] = useState(1);
-
-  const removeProfile = async (id: string) => {
-    const currentProfile = profiles[id];
-
-    setProfiles((old) => {
-      delete old[id];
-      return { ...old };
-    });
-
-    const isSuccess = await deleteProfileFromServer(id,currentProfile );
-    if (isSuccess)
-      setIsDel({
-        isOpen: true,
-        severity: "success",
-      });
-    else
-      setIsDel({
-        isOpen: true,
-        severity: "error",
-      });
-  };
 
   const changePage = (p: number) => {
     setPage(p);
@@ -66,17 +35,6 @@ const Home = () => {
 
   return (
     <>
-      <Snackbar
-        open={isDel.isOpen}
-        onClose={() => setIsDel((old) => ({ ...old, isOpen: false }))}
-        autoHideDuration={2000}>
-        <Alert variant="filled" severity={isDel.severity}>
-          {isDel.severity === "success"
-            ? "Successfully deleted!"
-            : "Something went wrong"}
-        </Alert>
-      </Snackbar>
-
       <Pagination
         count={pagesAmount}
         page={page}
@@ -102,29 +60,44 @@ const Home = () => {
                 }}
                 className={css.link}>
                 {user && (
-                  <Button
-                    className={css.close}
-                    sx={{
-                      background: "#93000a !important",
-                      color: "white",
-                      borderRadius: "50%",
-                      width: 40,
-                      height: 40,
-                      padding: 0,
-                      minWidth: 40,
-                      minHeight: 40,
-                      position: "absolute",
-                      right: -8,
-                      top: -8,
-                      zIndex: 2,
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      removeProfile(id);
-                    }}>
-                    <CloseIcon />
-                  </Button>
+                  <>
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        right: -8,
+                        top: -8,
+                        zIndex: 2,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 0.5,
+                      }}>
+                      <Button
+                        className={css.adminButton}
+                        sx={{
+                          background: "#93000a !important",
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          removeProfile(id);
+                        }}>
+                        <CloseIcon />
+                      </Button>
+
+                      <Button
+                        className={css.adminButton}
+                        sx={{
+                          background: "#00a1d7 !important",
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
+                          nav.navigate(`edit/${id}`);
+                        }}>
+                        <EditIcon />
+                      </Button>
+                    </Box>
+                  </>
                 )}
                 <Card
                   variant="elevation"
