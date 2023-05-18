@@ -65,6 +65,7 @@ const CreateProfile = () => {
     };
 
     setPhotos([]);
+    setDeletedPhotos([]);
     setState({
       name: "",
       birthday: 0,
@@ -220,6 +221,7 @@ const CreateProfile = () => {
       prepareEditor();
     } else {
       setCheckIsEditor(true);
+      handleClear();
     }
   }, [page, isLoad]);
 

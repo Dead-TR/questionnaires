@@ -1,6 +1,14 @@
 import { Fragment, useState } from "react";
 import { Link } from "react-router-dom";
-import { Box, Button, Card, Pagination, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  Container,
+  Modal,
+  Pagination,
+  Typography,
+} from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
@@ -17,6 +25,9 @@ const Home = () => {
   const { profiles, removeProfile, loading } = useProfiles();
   const { user } = useAuth();
   const { page: nav } = usePath();
+  const [deleteUserId, setDeleteUserId] = useState<number | string | null>(
+    null,
+  );
 
   const [page, setPage] = useState(1);
 
@@ -80,7 +91,7 @@ const Home = () => {
                           onClick={(e) => {
                             e.stopPropagation();
                             e.preventDefault();
-                            removeProfile(id);
+                            setDeleteUserId(id);
                           }}>
                           <CloseIcon />
                         </Button>
@@ -143,6 +154,42 @@ const Home = () => {
           onChange={(e, page) => changePage(page)}
         />
       )}
+
+      <Modal
+        open={!!deleteUserId}
+        onClose={() => setDeleteUserId(null)}
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}>
+        <Container
+          sx={{
+            background: "white",
+            display: "flex",
+            flexDirection: "column",
+            width: "fit-content",
+            p: 2,
+            borderRadius: 2,
+          }}>
+          <Typography
+            sx={{
+              mb: 4,
+            }}>
+            Are you sure you want to delete the profile?
+          </Typography>
+          <Box sx={{ mx: "auto" }}>
+            <Button
+              onClick={() => {
+                removeProfile("" + deleteUserId);
+                setDeleteUserId(null);
+              }}>
+              Yes
+            </Button>
+            <Button onClick={() => setDeleteUserId(null)}>No</Button>
+          </Box>
+        </Container>
+      </Modal>
     </>
   );
 };

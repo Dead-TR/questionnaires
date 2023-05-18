@@ -4,19 +4,18 @@ import { Autocomplete, Box, TextField } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import debounce from "lodash.debounce";
+import dateformat from "dateformat";
+import clsx from "clsx";
+
 //@ts-ignore
 import moment from "moment";
 
-import debounce from "lodash.debounce";
 import { Textarea } from "@mui/joy";
-
-import dateformat from "dateformat";
 
 import { ProfileState, Country, CountryFetch } from "pages/CreateProfile/type";
 import { getFetch } from "utils/fetch";
-import { sleep } from "utils";
 import css from "../../style.module.scss";
-import clsx from "clsx";
 
 const wait = debounce((f: () => void) => {
   f();
@@ -37,7 +36,6 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [showText, setShowText] = useState(true);
   const input = useRef<HTMLInputElement>(null);
-  console.log("🚀 ~ file: index.tsx:37 ~ state:", state.birthday, showText);
 
   const handleChange = <K extends keyof typeof state>(
     key: K,
@@ -215,6 +213,7 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
       <TextField
         label="City"
         variant="outlined"
+        value={state.city}
         onChange={({ target }) => {
           handleChange("city", target.value);
         }}
