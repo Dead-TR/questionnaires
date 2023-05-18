@@ -11,16 +11,16 @@ import React, {
 import { collection, query, getDocs } from "firebase/firestore";
 
 import { getImgLinkFromFireBase } from "utils/getImgLinkFromFireBase";
-import { Profile } from "pages/CreateProfile/type";
+import { FrontProfile, ServerProfile } from "pages/CreateProfile/type";
 import { fireBaseDataBase } from "config/fireBase";
 import { deleteProfileFromServer } from "utils";
 import { Alert, Snackbar } from "@mui/material";
 
-type Profiles = Record<string, Profile>;
+type Profiles = Record<string, FrontProfile>;
 
 const Context = createContext<{
   profiles: Profiles;
-  setProfiles: Dispatch<SetStateAction<Record<string, Profile>>>;
+  setProfiles: Dispatch<SetStateAction<Record<string, FrontProfile>>>;
   removeProfile: (id: string) => Promise<boolean>;
 
   loading: boolean;
@@ -36,7 +36,7 @@ interface Props {
   children?: React.ReactNode;
 }
 export const ProfilesProvider: FC<Props> = ({ children }) => {
-  const [profiles, setProfiles] = useState<Record<string, Profile>>({});
+  const [profiles, setProfiles] = useState<Record<string, FrontProfile>>({});
   const [loading, setLoading] = useState(true);
   const [isDel, setIsDel] = useState<{
     isOpen: boolean;
@@ -49,36 +49,46 @@ export const ProfilesProvider: FC<Props> = ({ children }) => {
   useEffect(() => {
     const getProfiles = async () => {
       setLoading(true);
-      const profilesRef = query(collection(fireBaseDataBase, "profiles"));
-      const profiles = await getDocs(profilesRef);
+      try {
+        const profilesRef = query(collection(fireBaseDataBase, "profiles"));
+        const profiles = await getDocs(profilesRef);
 
-      const list = await new Promise<Record<string, Profile>>((res, rej) => {
-        const list: Record<string, Profile> = {};
-        const size = profiles.size;
-        let i = 0;
+        const list = await new Promise<Record<string, FrontProfile>>(
+          (res, rej) => {
+            const list: Record<string, FrontProfile> = {};
+            const size = profiles.size;
+            let i = 0;
 
-        profiles.forEach(async (doc) => {
-          const profile = doc.data() as Profile;
-          const id = doc.id;
+            profiles.forEach(async (doc) => {
+              const profile = doc.data() as ServerProfile;
+              const id = doc.id;
 
-          const updatedLinks: string[] = [];
+              const preparedPhotos: FrontProfile["photos"] = [];
 
-          for (const link of profile.photos) {
-            const img = await getImgLinkFromFireBase(link);
-            updatedLinks.push(img);
-          }
+              for (const currentPhoto of profile.photos) {
+                const { isAvatar, name } = currentPhoto;
+                const link = await getImgLinkFromFireBase(currentPhoto.name);
+                preparedPhotos.push({
+                  isAvatar,
+                  link,
+                  name,
+                });
+              }
 
-          list[id] = {
-            ...profile,
-            photos: updatedLinks,
-            photoRefs: profile.photos,
-          };
+              list[id] = {
+                ...profile,
+                photos: preparedPhotos,
+              };
 
-          if (++i === size) res(list);
-        });
-      });
+              if (++i === size) res(list);
+            });
+          },
+        );
 
-      setProfiles(list);
+        setProfiles(list);
+      } catch (e) {
+        console.error("Something went wrong", e);
+      }
       setLoading(false);
     };
 

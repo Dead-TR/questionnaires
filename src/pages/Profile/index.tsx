@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { Box, Container, Typography } from "@mui/material";
+import dateFormat from "dateformat";
 
 import { usePath } from "hooks";
 import { useProfiles } from "containers";
 
 import { FallBack } from "components/FallBack";
 import { getAge } from "utils/getAge";
-import dateFormat from "dateformat";
 
-import css from "./style.module.scss";
 import { Carousel } from "./components";
+import css from "./style.module.scss";
 
 const Profile = () => {
   const { page } = usePath();
@@ -66,12 +66,12 @@ const Profile = () => {
                 }}
                 onClick={() => setIsOpenCarousel(true)}>
                 <img
-                  src={photos ? photos[0] || "" : ""}
+                  src={photos ? photos[0].link || "" : ""}
                   alt={name}
                   className={css.avatar}
                 />
                 <div className={css.etcImg}>
-                  {photos?.map((link, i) => {
+                  {photos?.map(({ link }, i) => {
                     if (!i) return null;
                     return <img src={link} alt={"photo_" + i} />;
                   })}
@@ -137,7 +137,7 @@ const Profile = () => {
         <Carousel
           isOpen={isOpenCarousel}
           handleClose={() => setIsOpenCarousel(false)}
-          pictures={photos}
+          pictures={photos.map(({ link }) => link)}
         />
       )}
     </>

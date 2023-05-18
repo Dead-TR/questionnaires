@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Link } from "react-router-dom";
 import { Box, Button, Card, Pagination, Typography } from "@mui/material";
 
@@ -54,80 +54,82 @@ const Home = () => {
               return null;
 
             return (
-              <Link
-                to={{
-                  pathname: `/profile/${id}`,
-                }}
-                className={css.link}>
-                {user && (
-                  <>
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        right: -8,
-                        top: -8,
-                        zIndex: 2,
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: 0.5,
-                      }}>
-                      <Button
-                        className={css.adminButton}
+              <Fragment key={`profile_${id}`}>
+                <Link
+                  to={{
+                    pathname: `/profile/${id}`,
+                  }}
+                  className={css.link}>
+                  {user && (
+                    <>
+                      <Box
                         sx={{
-                          background: "#93000a !important",
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          removeProfile(id);
+                          position: "absolute",
+                          right: -8,
+                          top: -8,
+                          zIndex: 2,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 0.5,
                         }}>
-                        <CloseIcon />
-                      </Button>
+                        <Button
+                          className={css.adminButton}
+                          sx={{
+                            background: "#93000a !important",
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            removeProfile(id);
+                          }}>
+                          <CloseIcon />
+                        </Button>
 
-                      <Button
-                        className={css.adminButton}
-                        sx={{
-                          background: "#00a1d7 !important",
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          nav.navigate(`edit/${id}`);
-                        }}>
-                        <EditIcon />
-                      </Button>
-                    </Box>
-                  </>
-                )}
-                <Card
-                  variant="elevation"
-                  sx={{
-                    height: "100%",
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                  }}>
-                  <Typography
+                        <Button
+                          className={css.adminButton}
+                          sx={{
+                            background: "#00a1d7 !important",
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            nav.navigate(`edit/${id}`);
+                          }}>
+                          <EditIcon />
+                        </Button>
+                      </Box>
+                    </>
+                  )}
+                  <Card
+                    variant="elevation"
                     sx={{
-                      fontSize: 24,
-                      textAlign: "center",
-                      display: "block",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      textTransform: "capitalize",
-                      lineHeight: 1.5,
-                      whiteSpace: "nowrap",
+                      height: "100%",
+                      p: 2,
+                      display: "flex",
+                      flexDirection: "column",
                     }}>
-                    {name}
-                  </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: 24,
+                        textAlign: "center",
+                        display: "block",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        textTransform: "capitalize",
+                        lineHeight: 1.5,
+                        whiteSpace: "nowrap",
+                      }}>
+                      {name}
+                    </Typography>
 
-                  <Typography sx={{ my: 0.5, lineHeight: 1 }}>
-                    {age > 0 ? `Age: ${age}` : " "}
-                  </Typography>
+                    <Typography sx={{ my: 0.5, lineHeight: 1 }}>
+                      {age > 0 ? `Age: ${age}` : " "}
+                    </Typography>
 
-                  <img className={css.avatar} src={avatar} alt={name} />
-                </Card>
-              </Link>
+                    <img className={css.avatar} src={avatar.link} alt={name} />
+                  </Card>
+                </Link>
+              </Fragment>
             );
           },
         )}

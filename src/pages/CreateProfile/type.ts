@@ -26,10 +26,14 @@ export interface ProfileState {
 
 export interface PhotosState {
   file?: File;
+  name?: string;
   link: string;
 }
 
-export interface Profile extends ProfileState {
-  photos: string[];
-  photoRefs?: string[];
+export interface FrontProfile extends ProfileState {
+  photos: { link: string; name: string; isAvatar: boolean }[];
+}
+
+export interface ServerProfile extends ProfileState {
+  photos: { name: string; isAvatar: boolean }[];
 }

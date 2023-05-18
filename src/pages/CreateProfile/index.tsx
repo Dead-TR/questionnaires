@@ -10,12 +10,11 @@ import { Loader } from "components/Loader";
 import { useProfiles } from "containers";
 
 import { TextFields } from "./components";
-import { PhotosState, Profile, ProfileState } from "./type";
+import { FrontProfile, PhotosState, ProfileState, ServerProfile } from "./type";
 import css from "./style.module.scss";
 import { getImgLinkFromFireBase } from "utils/getImgLinkFromFireBase";
 import { usePath } from "hooks";
-import { FallBack } from "components/FallBack";
-import { sleep } from "utils";
+import { deletePhotosFromServer, sleep } from "utils";
 
 const getFileTypeReg = /\.[0-9a-z]+$/i;
 
@@ -31,6 +30,7 @@ const CreateProfile = () => {
     photo: "",
   });
   const [photos, setPhotos] = useState<PhotosState[]>([]);
+  const [deletedPhotos, setDeletedPhotos] = useState<string[]>([]);
   const [state, setState] = useState<ProfileState>({
     name: "",
     birthday: 0,
@@ -76,6 +76,7 @@ const CreateProfile = () => {
 
   const sendData = async () => {
     setLoading(true);
+    debugger;
     try {
       if (photos.length) {
         const sendPhotos = photos.filter((p) => !!p.file); //do NOT send items for which there is no blob
@@ -90,7 +91,7 @@ const CreateProfile = () => {
           };
         });
 
-        const result = await Promise.all<UploadResult | null>(
+        const uploadResults = await Promise.all<UploadResult | null>(
           imgRefs.map((element, i) => {
             if (!element) return new Promise((r) => r(null));
 
@@ -100,9 +101,38 @@ const CreateProfile = () => {
           }),
         );
 
+        const serverProfilePhotos = [
+          ...photos
+            .filter((p) => !p.file && p.name)
+            .map(({ name = "" }) => ({ name, isAvatar: false })),
+          ...uploadResults.map((r) => ({
+            isAvatar: false,
+            name: r?.metadata.fullPath || "",
+          })),
+        ].map(({ name }, i) => ({
+          isAvatar: i === 0,
+          name,
+        }));
+
+        const newServerProfile: ServerProfile = {
+          ...state,
+          photos: serverProfilePhotos,
+        };
+
+        await setDoc(
+          doc(fireBaseDataBase, "profiles", ID.current),
+          newServerProfile,
+        );
+
         const links = await Promise.all(
-          result.map(async (v) => {
-            return await getImgLinkFromFireBase(v?.metadata.fullPath || "");
+          serverProfilePhotos.map(async (v) => {
+            const pathName = v.name || "";
+            const link = await getImgLinkFromFireBase(pathName);
+
+            return {
+              link,
+              name: pathName,
+            };
           }),
         );
 
@@ -110,17 +140,21 @@ const CreateProfile = () => {
           throw new Error(`cant send Photos: ${JSON.stringify(links)}`);
         }
 
-        const newProfile: Profile = {
+        const newFrontProfile: FrontProfile = {
           ...state,
-          photos: links as string[],
+          photos: links.map(({ link, name }, i) => ({
+            isAvatar: i === 0,
+            name,
+            link,
+          })),
         };
-
-        await setDoc(doc(fireBaseDataBase, "profiles", ID.current), newProfile);
 
         setProfiles((old) => ({
           ...old,
-          [ID.current]: newProfile,
+          [ID.current]: newFrontProfile,
         }));
+
+        deletePhotosFromServer(deletedPhotos);
       }
 
       handleClear();
@@ -132,14 +166,14 @@ const CreateProfile = () => {
     setLoading(false);
   };
 
+  const [pageName, currentId] = page.path.substring(1).split("/");
+  const isEditor = pageName === "edit";
+
   useEffect(() => {
-    const [pageName, currentId] = page.path.substring(1).split("/");
-
     ID.current = currentId || ("" + Date.now()).substring(4);
-
     const currentProfile = profiles[currentId];
 
-    if (pageName === "edit") {
+    if (isEditor) {
       if (!(!isLoad && currentProfile)) return;
 
       const {
@@ -153,8 +187,17 @@ const CreateProfile = () => {
         photos = [],
         etc = "",
       } = currentProfile;
+
       const prepareEditor = async () => {
-        setPhotos(photos.map((link) => ({ link })));
+        setPhotos(
+          photos
+            .sort((a, b) => {
+              if (a.isAvatar) return -1;
+              if (b.isAvatar) return 1;
+              else return 0;
+            })
+            .map(({ link, name }) => ({ link, name })),
+        );
         setState({
           name,
           birthday,
@@ -231,6 +274,8 @@ const CreateProfile = () => {
                     e.preventDefault();
                     const updatePhotos = photos.filter((img) => img !== v);
                     setPhotos(updatePhotos);
+
+                    if (isEditor) setDeletedPhotos((old) => [...old, v.link]);
                   }}
                 />
               );
@@ -238,9 +283,7 @@ const CreateProfile = () => {
           </div>
         </Box>
 
-        {checkIsEditor && !isLoad ? (
-          <TextFields {...{ state, setState }} />
-        ) : null}
+        {checkIsEditor ? <TextFields {...{ state, setState }} /> : null}
 
         <Button
           sx={{
