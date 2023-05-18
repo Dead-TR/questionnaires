@@ -110,8 +110,6 @@
   position: relative;
   width: 100%;
 
-
-
   & > * {
     width: 100%;
   }
@@ -135,4 +133,10 @@
   padding-left: 14px;
 
   pointer-events: none;
+}
+
+.error {
+  & fieldset {
+    border: 1px solid #d32f2f;
+  }
 }

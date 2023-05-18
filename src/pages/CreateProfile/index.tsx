@@ -20,7 +20,11 @@ const getFileTypeReg = /\.[0-9a-z]+$/i;
 
 const CreateProfile = () => {
   const dragCard = useRef<HTMLDivElement>(null);
+
   const { page } = usePath();
+  const [pageName, currentId] = page.path.substring(1).split("/");
+  const isEditor = pageName === "edit";
+
   const { setProfiles, profiles, loading: isLoad } = useProfiles();
 
   const ID = useRef("0");
@@ -76,7 +80,6 @@ const CreateProfile = () => {
 
   const sendData = async () => {
     setLoading(true);
-    debugger;
     try {
       if (photos.length) {
         const sendPhotos = photos.filter((p) => !!p.file); //do NOT send items for which there is no blob
@@ -164,10 +167,11 @@ const CreateProfile = () => {
     }
 
     setLoading(false);
-  };
 
-  const [pageName, currentId] = page.path.substring(1).split("/");
-  const isEditor = pageName === "edit";
+    if (isEditor) {
+      page.navigate("/");
+    }
+  };
 
   useEffect(() => {
     ID.current = currentId || ("" + Date.now()).substring(4);

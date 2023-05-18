@@ -37,6 +37,7 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
   const [countries, setCountries] = useState<Country[]>([]);
   const [showText, setShowText] = useState(true);
   const input = useRef<HTMLInputElement>(null);
+  console.log("🚀 ~ file: index.tsx:37 ~ state:", state.birthday, showText);
 
   const handleChange = <K extends keyof typeof state>(
     key: K,
@@ -69,11 +70,28 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
     handleChange("country", value);
   };
 
+  useEffect(() => {}, []);
+
   useEffect(() => {
-    input.current?.addEventListener("focus", () => {
-      setShowText(false);
-    });
-  }, []);
+    if (!state.birthday) {
+      setShowText(true);
+    }
+
+    const blur = () => {
+      if (!state.birthday) {
+        setShowText(true);
+      }
+    };
+    const focus = () => setShowText(false);
+
+    input.current?.addEventListener("focus", focus);
+    input.current?.addEventListener("blur", blur);
+
+    return () => {
+      input.current?.removeEventListener("focus", focus);
+      input.current?.removeEventListener("blur", blur);
+    };
+  }, [state.birthday]);
 
   return (
     <Box
@@ -95,7 +113,12 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
         }}
         error={!state.name}
       />
-      <div className={clsx(css.dateWrapper, showText && css.hideDate)}>
+      <div
+        className={clsx(
+          css.dateWrapper,
+          showText && css.hideDate,
+          !state.birthday && css.error,
+        )}>
         <LocalizationProvider dateAdapter={AdapterMoment}>
           <DatePicker
             format="DD/MM/YYYY"
@@ -109,9 +132,11 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
 
         {showText && (
           <div className={css.dateFormat}>
-            {state.birthday ? (
-              <span>{dateformat(state.birthday, "dd/mm/yyyy")}</span>
-            ) : null}
+            <span>
+              {state.birthday
+                ? dateformat(state.birthday, "dd/mm/yyyy")
+                : "DD/MM/YYYY"}
+            </span>
           </div>
         )}
       </div>
