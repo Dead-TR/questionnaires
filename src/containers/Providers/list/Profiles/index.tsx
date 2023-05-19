@@ -38,7 +38,6 @@ interface Props {
 export const ProfilesProvider: FC<Props> = ({ children }) => {
   const [profiles, setProfiles] = useState<Record<string, FrontProfile>>({});
   const [loading, setLoading] = useState(true);
-  console.log("🚀 ~ file: index.tsx:41 ~ loading:", loading);
   const [isDel, setIsDel] = useState<{
     isOpen: boolean;
     severity: "success" | "error";

@@ -5,13 +5,12 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import debounce from "lodash.debounce";
+import { Textarea } from "@mui/joy";
 import dateformat from "dateformat";
 import clsx from "clsx";
 
 //@ts-ignore
 import moment from "moment";
-
-import { Textarea } from "@mui/joy";
 
 import { ProfileState, Country, CountryFetch } from "pages/CreateProfile/type";
 import { getFetch } from "utils/fetch";
@@ -92,16 +91,7 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
   }, [state.birthday]);
 
   return (
-    <Box
-      sx={{
-        my: 4,
-        maxWidth: 900,
-        width: "100%",
-        mx: "auto",
-        display: "grid",
-        gridTemplateColumns: "repeat(2, 1fr)",
-        gap: 2,
-      }}>
+    <Box className={css.textField}>
       <TextField
         label="Name"
         variant="outlined"

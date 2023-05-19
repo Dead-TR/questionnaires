@@ -232,7 +232,7 @@ const CreateProfile = () => {
           py: 5,
           overflow: "auto",
         }}
-        className={clsx(loading && css.load)}>
+        className={clsx(loading && css.load, css.root)}>
         <Box sx={{ mx: "auto", maxWidth: 550 }}>
           <Dropzone
             onDrop={(acceptedFiles) => {

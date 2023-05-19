@@ -47,10 +47,7 @@ const Profile = () => {
             {birthday ? `Age: ${getAge(birthday)}` : ""}
           </Typography>
 
-          <Box
-            sx={{
-              display: "flex",
-            }}>
+          <Box className={css.profileBox}>
             <Box
               sx={{
                 flexBasis: "100%",

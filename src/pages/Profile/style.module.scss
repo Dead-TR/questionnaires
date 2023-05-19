@@ -1,5 +1,9 @@
 .root {
   margin: 20px 0;
+
+  @media (max-width: 800px) {
+    margin: 20px -15px;
+  }
 }
 
 .avatar {
@@ -74,6 +78,28 @@
         overflow: hidden;
         text-overflow: ellipsis;
         width: 100%;
+      }
+    }
+  }
+}
+
+.profileBox {
+  display: flex;
+  gap: 24px;
+
+  @media (max-width: 800px) {
+    flex-direction: column;
+
+    & > * {
+      &:first-child {
+        margin: 0 auto;
+
+        & > * {
+          & > img {
+            width: 100%;
+            height: auto;
+          }
+        }
       }
     }
   }
