@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet";
 
-import { AppBar, Avatar, Box, Button, Container, Popover } from "@mui/material";
+import {
+  AppBar,
+  Avatar,
+  Box,
+  Button,
+  Container,
+  Popover,
+  useTheme,
+} from "@mui/material";
 
 import { useAuth } from "containers/Providers";
 import { usePath } from "hooks";
@@ -11,6 +19,7 @@ import { Routes } from "./routeComponents";
 const Layout = () => {
   const { page } = usePath();
   const { user, sightOut } = useAuth();
+  const theme = useTheme();
   const avatar = useRef<HTMLDivElement>(null);
 
   const [isOpen, setIsOpen] = useState(false);
@@ -102,7 +111,12 @@ const Layout = () => {
         </Container>
       </AppBar>
       <Container
-        sx={{ py: 2, minHeight: "100vh", mt: 5, bgcolor: "#cfe8fc" }}
+        sx={{
+          py: 2,
+          minHeight: "100vh",
+          mt: 5,
+          bgcolor: theme.palette.secondary.main,
+        }}
         maxWidth="lg">
         <Routes />
       </Container>

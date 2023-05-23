@@ -7,6 +7,7 @@ import {
   InputAdornment,
   OutlinedInput,
   Paper,
+  TextField,
 } from "@mui/material";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -36,7 +37,7 @@ const Auth = () => {
     <Container sx={{}}>
       <Box sx={{ maxWidth: 400, m: "auto", width: "100%", mt: 10 }}>
         <Paper sx={{ p: 4 }} elevation={3}>
-          <OutlinedInput
+          <TextField
             label="Login"
             type="text"
             sx={{ width: "100%" }}
@@ -45,39 +46,39 @@ const Auth = () => {
               setState((old) => ({ ...old, email: target.value }))
             }
           />
-          <OutlinedInput
-            label="Password"
-            sx={{ width: "100%", mt: 2 }}
-            onChange={({ target }) =>
-              setState((old) => ({ ...old, password: target.value }))
-            }
-            type={state.isShowPass ? "text" : "password"}
-            endAdornment={
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label="toggle password visibility"
-                  onClick={() => {
-                    setState((old) => ({
-                      ...old,
-                      isShowPass: !old.isShowPass,
-                    }));
-                  }}
-                  edge="end">
-                  {state.isShowPass ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            }
-          />
+          <div className={css.inputWrapper}>
+            <TextField
+              label="Password"
+              sx={{ width: "100%", mt: 2 }}
+              onChange={({ target }) =>
+                setState((old) => ({ ...old, password: target.value }))
+              }
+              type={state.isShowPass ? "text" : "password"}
+            />
+            <IconButton
+              aria-label="toggle password visibility"
+              onClick={() => {
+                setState((old) => ({
+                  ...old,
+                  isShowPass: !old.isShowPass,
+                }));
+              }}
+              className={css.icon}
+              edge="end">
+              {state.isShowPass ? <VisibilityOff /> : <Visibility />}
+            </IconButton>
+          </div>
 
           <Button
             disabled={loading}
             variant="contained"
             sx={{ width: "100%", mt: 2, p: 1.5 }}
-            onClick={() => {
+            onClick={async () => {
               setLoading(true);
-              sighIn(state.email, state.password);
+              await sighIn(state.email, state.password);
+              setLoading(false);
             }}>
-            {loading ? <Loader size={25} /> : "Log In"}
+            {loading ? <Loader size={25} /> : <span>Log In</span>}
           </Button>
         </Paper>
       </Box>

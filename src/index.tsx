@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { createRoot } from "react-dom/client";
 
 import { lazyLoad } from "config";
+import "./bootstrap.css";
 import "./index.css";
 
 const App = lazyLoad(() => import("containers/App"));

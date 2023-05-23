@@ -1,3 +1,18 @@
-.root{
+.root {
+}
 
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  & .icon {
+    position: absolute;
+    right: 20px;
+    margin-top: 15px;
+  }
+
+  & input {
+    max-width: calc(100% - 65px);
+  }
 }

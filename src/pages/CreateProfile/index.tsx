@@ -4,17 +4,18 @@ import clsx from "clsx";
 import { Alert, Box, Button, Card, Container, Snackbar } from "@mui/material";
 import { UploadResult, ref, uploadBytes } from "firebase/storage";
 import { doc, setDoc } from "firebase/firestore";
+import { fromBlob } from "image-resize-compress";
 
+import { getImgLinkFromFireBase } from "utils/getImgLinkFromFireBase";
 import { fireBaseDataBase, fireBaseStorage } from "config/fireBase";
+import { deletePhotosFromServer, sleep } from "utils";
 import { Loader } from "components/Loader";
 import { useProfiles } from "containers";
+import { usePath } from "hooks";
 
 import { TextFields } from "./components";
 import { FrontProfile, PhotosState, ProfileState, ServerProfile } from "./type";
 import css from "./style.module.scss";
-import { getImgLinkFromFireBase } from "utils/getImgLinkFromFireBase";
-import { usePath } from "hooks";
-import { deletePhotosFromServer, sleep } from "utils";
 
 const getFileTypeReg = /\.[0-9a-z]+$/i;
 
@@ -34,6 +35,7 @@ const CreateProfile = () => {
     photo: "",
   });
   const [photos, setPhotos] = useState<PhotosState[]>([]);
+  console.log("🚀 ~ file: index.tsx:38 ~ CreateProfile ~ photos:", photos);
   const [deletedPhotos, setDeletedPhotos] = useState<string[]>([]);
   const [state, setState] = useState<ProfileState>({
     name: "",
@@ -49,6 +51,8 @@ const CreateProfile = () => {
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [checkIsEditor, setCheckIsEditor] = useState(false);
+
+  const [error, setError] = useState("");
 
   const toggle = (add: boolean) => {
     if (!dragCard.current) return;
@@ -123,10 +127,12 @@ const CreateProfile = () => {
           photos: serverProfilePhotos,
         };
 
-        await setDoc(
+        const result = await setDoc(
           doc(fireBaseDataBase, "profiles", ID.current),
           newServerProfile,
         );
+
+        console.log(result, serverProfilePhotos);
 
         const links = await Promise.all(
           serverProfilePhotos.map(async (v) => {
@@ -141,6 +147,7 @@ const CreateProfile = () => {
         );
 
         if (!links) {
+          setError("Photos list is empty");
           throw new Error(`cant send Photos: ${JSON.stringify(links)}`);
         }
 
@@ -165,6 +172,7 @@ const CreateProfile = () => {
       setIsSuccess(true);
     } catch (error) {
       console.log(error);
+      setError("Error: " + (error as Error).message);
     }
 
     setLoading(false);
@@ -235,11 +243,31 @@ const CreateProfile = () => {
         className={clsx(loading && css.load, css.root)}>
         <Box sx={{ mx: "auto", maxWidth: 550 }}>
           <Dropzone
-            onDrop={(acceptedFiles) => {
-              const photos = acceptedFiles.map((file) => ({
-                file,
-                link: URL.createObjectURL(file),
-              }));
+            onDrop={async (acceptedFiles) => {
+              const photos = await Promise.all(
+                acceptedFiles.map(async (file, i) => {
+                  const compressedFile = await fromBlob(
+                    file,
+                    90,
+                    "auto",
+                    900,
+                    "webp",
+                  );
+                  const preparedFile =
+                    compressedFile.size < file.size
+                      ? new File([compressedFile], `${i}.webp`, {
+                          type: "image/webp",
+                        })
+                      : file;
+
+                  console.log("🚀 ~ ~> ", preparedFile);
+                  return {
+                    file: preparedFile,
+                    link: URL.createObjectURL(preparedFile),
+                  };
+                }),
+              );
+
               setPhotos((old) => [...old, ...photos]);
             }}
             onDragOver={() => toggle(true)}
@@ -301,24 +329,31 @@ const CreateProfile = () => {
           variant="contained"
           disabled={loading || !state.name || !photos.length}
           onClick={sendData}>
-          {loading ? <Loader size={25} /> : "Send"}
+          {loading ? <Loader size={25} /> : <span>Send</span>}
         </Button>
       </Container>
 
       <Snackbar
-        open={isSuccess}
+        open={isSuccess || !!error}
         autoHideDuration={2000}
-        onClose={() => setIsSuccess(false)}>
-        <Alert icon={false} severity="info">
-          <Box>
-            <span className={css.subTitle}>Profile created!</span>
-            <h1 className={css.name}>{oldData.current.name}</h1>
-            <img
-              src={oldData.current.photo}
-              alt="avatar"
-              className={css.helpAvatar}
-            />
-          </Box>
+        onClose={() => {
+          setError("");
+          setIsSuccess(false);
+        }}>
+        <Alert icon={false} severity={!error ? "info" : "error"}>
+          {!error ? (
+            <Box>
+              <span className={css.subTitle}>Profile created!</span>
+              <h1 className={css.name}>{oldData.current.name}</h1>
+              <img
+                src={oldData.current.photo}
+                alt="avatar"
+                className={css.helpAvatar}
+              />
+            </Box>
+          ) : (
+            error
+          )}
         </Alert>
       </Snackbar>
     </>

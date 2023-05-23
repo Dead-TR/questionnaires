@@ -5,7 +5,6 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterMoment } from "@mui/x-date-pickers/AdapterMoment";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import debounce from "lodash.debounce";
-import { Textarea } from "@mui/joy";
 import dateformat from "dateformat";
 import clsx from "clsx";
 
@@ -189,10 +188,8 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
         value={state.country}
       />
 
-      <Textarea
-        className={css.textArea}
-        minRows={5}
-        sx={{ width: "100%" }}
+      <textarea
+        className={clsx(css.textArea, "form-control")}
         placeholder="Other"
         value={state.etc}
         onChange={({ target }) => {

@@ -59,14 +59,19 @@
   }
 }
 
-.textArea {
-  --joy-palette-neutral-outlinedHoverBorder: rgba(0, 0, 0, 0.87);
+.textField {
+  .textArea {
+    --joy-palette-neutral-outlinedHoverBorder: rgba(0, 0, 0, 0.87);
 
-  border: 1px solid rgba(0, 0, 0, 0.23);
-  background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.23);
+    background: transparent;
+    width: 100%;
+    border-radius: 5px;
+    min-height: 150px;
 
-  &:hover {
-    border-color: rgba(0, 0, 0, 0.87);
+    &:hover {
+      border-color: rgba(0, 0, 0, 0.87);
+    }
   }
 }
 

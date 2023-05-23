@@ -124,7 +124,14 @@ const Profile = () => {
                 </Box>
               ) : null}
 
-              {etc ? <Typography>{etc}</Typography> : null}
+              {etc ? (
+                <Typography
+                  sx={{
+                    whiteSpace: "pre",
+                  }}>
+                  {etc}
+                </Typography>
+              ) : null}
             </Box>
           </Box>
         </Container>

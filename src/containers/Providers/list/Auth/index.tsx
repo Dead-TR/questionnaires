@@ -13,10 +13,10 @@ import { fireBaseSightOut } from "./signOut";
 export const auth = getAuth();
 
 const AuthContext = createContext<{
-  sighIn: (email: string, password: string) => void;
+  sighIn: (email: string, password: string) => Promise<User | null>;
   sightOut: () => void;
   user: User | null;
-}>({ sighIn: () => {}, sightOut: () => {}, user: null });
+}>({ sighIn: async () => null, sightOut: () => {}, user: null });
 
 interface Props {
   children?: React.ReactNode;

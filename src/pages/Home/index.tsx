@@ -85,9 +85,8 @@ const Home = () => {
                         }}>
                         <Button
                           className={css.adminButton}
-                          sx={{
-                            background: "#93000a !important",
-                          }}
+                          color="error"
+                          variant="contained"
                           onClick={(e) => {
                             e.stopPropagation();
                             e.preventDefault();
@@ -98,9 +97,8 @@ const Home = () => {
 
                         <Button
                           className={css.adminButton}
-                          sx={{
-                            background: "#00a1d7 !important",
-                          }}
+                          color="info"
+                          variant="contained"
                           onClick={(e) => {
                             e.stopPropagation();
                             e.preventDefault();
