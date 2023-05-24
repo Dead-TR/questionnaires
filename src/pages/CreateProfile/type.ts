@@ -20,6 +20,8 @@ export interface ProfileState {
   job: string;
   country: string;
   city: string;
+  height: string | number;
+  weight: string | number;
 
   etc: string;
 }

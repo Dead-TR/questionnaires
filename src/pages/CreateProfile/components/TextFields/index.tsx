@@ -66,8 +66,6 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
     handleChange("country", value);
   };
 
-  useEffect(() => {}, []);
-
   useEffect(() => {
     if (!state.birthday) {
       setShowText(true);
@@ -127,6 +125,22 @@ export const TextFields: FC<Props> = ({ state, setState }) => {
           </div>
         )}
       </div>
+      <TextField
+        label="Height (cm)"
+        variant="outlined"
+        onChange={({ target }) => {
+          handleChange("height", target.value);
+        }}
+        value={state.height}
+      />
+      <TextField
+        label="Weight (kg)"
+        variant="outlined"
+        onChange={({ target }) => {
+          handleChange("weight", target.value);
+        }}
+        value={state.weight}
+      />
       <TextField
         label="Children"
         type="number"

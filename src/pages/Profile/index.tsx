@@ -25,11 +25,29 @@ const Profile = () => {
     if (!profiles[id]) page.navigate("/");
   }, [profiles, loading]);
 
-  const { name, birthday, photos, children, city, country, job, marital, etc } =
-    profiles[id] || {};
+  const {
+    name,
+    birthday,
+    photos,
+    children,
+    city,
+    country,
+    job,
+    marital,
+    etc,
+    height,
+    weight,
+  } = profiles[id] || {};
 
   const isWithMainContent =
-    birthday || marital || job || children || country || city;
+    birthday ||
+    marital ||
+    job ||
+    children ||
+    country ||
+    city ||
+    height ||
+    weight;
 
   return (
     <>
@@ -94,6 +112,20 @@ const Profile = () => {
                     </Box>
                   ) : null}
 
+                  {height ? (
+                    <Box>
+                      <Typography>Height:</Typography>
+                      <Typography>{height}cm</Typography>
+                    </Box>
+                  ) : null}
+
+                  {weight ? (
+                    <Box>
+                      <Typography>Weight:</Typography>
+                      <Typography>{weight}kg</Typography>
+                    </Box>
+                  ) : null}
+
                   {job ? (
                     <Box>
                       <Typography>Job:</Typography>
@@ -101,12 +133,12 @@ const Profile = () => {
                     </Box>
                   ) : null}
 
-                  {children ? (
-                    <Box>
-                      <Typography>Children:</Typography>
-                      <Typography>{children}</Typography>
-                    </Box>
-                  ) : null}
+                  <Box>
+                    <Typography>Children:</Typography>
+                    <Typography>
+                      {children ? children : "No children"}
+                    </Typography>
+                  </Box>
 
                   {country ? (
                     <Box>

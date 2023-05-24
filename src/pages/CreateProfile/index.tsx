@@ -45,6 +45,8 @@ const CreateProfile = () => {
     job: "",
     country: "",
     city: "",
+    height: "",
+    weight: "",
 
     etc: "",
   });
@@ -78,6 +80,8 @@ const CreateProfile = () => {
       job: "",
       country: "",
       city: "",
+      height: "",
+      weight: "",
       etc: "",
     });
     ID.current = ("" + Date.now()).substring(4);
@@ -199,6 +203,8 @@ const CreateProfile = () => {
         marital = "",
         photos = [],
         etc = "",
+        height = "",
+        weight = "",
       } = currentProfile;
 
       const prepareEditor = async () => {
@@ -220,6 +226,8 @@ const CreateProfile = () => {
           city,
           country,
           etc,
+          height,
+          weight,
         });
 
         await sleep(0);
