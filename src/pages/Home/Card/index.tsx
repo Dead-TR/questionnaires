@@ -48,18 +48,25 @@ export const ProfileCard: FC<Props> = ({
     return () => clearTimeouts();
   }, [isHover]);
 
+  const handleRotate = () => {
+    clearTimeouts();
+    setIsHover(true);
+  };
+
   return (
     <Link
       to={{
         pathname: `/profile/${id}`,
       }}
-      onPointerOver={() => {
-        clearTimeouts();
-        setIsHover(true);
-      }}
+      onPointerOver={handleRotate}
       onPointerLeave={() =>
         pushTimeout(() => setIsHover(false), +css.animationTime * 2)
       }
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        handleRotate();
+      }}
       className={css.link}>
       {user && (
         <>
@@ -134,47 +141,47 @@ export const ProfileCard: FC<Props> = ({
           />
 
           <div className={clsx(css.content, isHover && css.contentRotate)}>
-           <div className={css.data}>
-           {weight && (
-              <div>
-                weight: <span>{weight}kg</span>
-              </div>
-            )}
+            <div className={css.data}>
+              {weight && (
+                <div>
+                  weight: <span>{weight}kg</span>
+                </div>
+              )}
 
-            {height && (
-              <div>
-                height: <span>{height}cm</span>
-              </div>
-            )}
+              {height && (
+                <div>
+                  height: <span>{height}cm</span>
+                </div>
+              )}
 
-            {marital && (
-              <div>
-                marital: <span>{marital}</span>
-              </div>
-            )}
+              {marital && (
+                <div>
+                  marital: <span>{marital}</span>
+                </div>
+              )}
 
-            <div>
-              children: <span>{children ? children : "no children"}</span>
+              <div>
+                children: <span>{children ? children : "no children"}</span>
+              </div>
+
+              {job && (
+                <div>
+                  job: <span>{job}</span>
+                </div>
+              )}
+
+              {country && (
+                <div>
+                  country: <span>{country}</span>
+                </div>
+              )}
+
+              {city && (
+                <div>
+                  city: <span>{city}</span>
+                </div>
+              )}
             </div>
-
-            {job && (
-              <div>
-                job: <span>{job}</span>
-              </div>
-            )}
-
-            {country && (
-              <div>
-                country: <span>{country}</span>
-              </div>
-            )}
-
-            {city && (
-              <div>
-                city: <span>{city}</span>
-              </div>
-            )}
-           </div>
           </div>
         </div>
       </Card>
