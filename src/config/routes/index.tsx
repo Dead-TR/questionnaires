@@ -19,6 +19,12 @@ export const routes: PagesRoute = {
     },
   },
 
+  favorites: {
+    data: {
+      component: Home,
+    },
+  },
+
   profile: {
     data: {
       redirect: "/",

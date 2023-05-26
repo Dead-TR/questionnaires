@@ -1,4 +1,5 @@
 import React, {
+  ContextType,
   Dispatch,
   FC,
   SetStateAction,
@@ -18,18 +19,25 @@ import { Alert, Snackbar } from "@mui/material";
 
 type Profiles = Record<string, FrontProfile>;
 
-const Context = createContext<{
+interface ProfilesContext {
   profiles: Profiles;
   setProfiles: Dispatch<SetStateAction<Record<string, FrontProfile>>>;
   removeProfile: (id: string) => Promise<boolean>;
 
   loading: boolean;
-}>({
+  favorites: Record<string, string>;
+  /**add if no favorite and remove if is */
+  changeFavorites: (id: string) => void;
+}
+
+const Context = createContext<ProfilesContext>({
   profiles: {},
   setProfiles: () => {},
   removeProfile: async () => true,
 
   loading: false,
+  favorites: {},
+  changeFavorites: () => {},
 });
 
 interface Props {
@@ -45,6 +53,26 @@ export const ProfilesProvider: FC<Props> = ({ children }) => {
     isOpen: false,
     severity: "success",
   });
+
+  const [favorites, setFavorites] = useState<ProfilesContext["favorites"]>({});
+
+  const changeFavorites = (id: string) => {
+    setFavorites((old) => {
+      const isFavorite = !!old[id];
+
+      if (isFavorite) delete old[id];
+      else old[id] = id;
+
+      try {
+        const favList = Object.keys(old);
+        localStorage.setItem("favorites", JSON.stringify(favList));
+      } catch (e) {
+        console.error(e);
+      }
+
+      return { ...old };
+    });
+  };
 
   useEffect(() => {
     const getProfiles = async () => {
@@ -88,6 +116,21 @@ export const ProfilesProvider: FC<Props> = ({ children }) => {
         );
 
         setProfiles(list);
+
+        try {
+          const favList = localStorage.getItem("favorites");
+          if (favList) {
+            const favListArray = JSON.parse(favList) as string[];
+            setFavorites(
+              favListArray.reduce((fav, id) => {
+                fav[id] = id;
+                return fav;
+              }, {} as ProfilesContext["favorites"]),
+            );
+          }
+        } catch (e) {
+          console.error("Something went wrong", e);
+        }
       } catch (e) {
         console.error("Something went wrong", e);
       }
@@ -123,7 +166,14 @@ export const ProfilesProvider: FC<Props> = ({ children }) => {
   return (
     <>
       <Context.Provider
-        value={{ profiles, setProfiles, removeProfile, loading }}>
+        value={{
+          profiles,
+          setProfiles,
+          removeProfile,
+          loading,
+          favorites,
+          changeFavorites,
+        }}>
         {children}
       </Context.Provider>
 

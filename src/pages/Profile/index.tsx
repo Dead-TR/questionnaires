@@ -1,20 +1,25 @@
 import { useEffect, useState } from "react";
-import { Box, Container, Typography } from "@mui/material";
+import { Box, Button, Container, Typography } from "@mui/material";
 import dateFormat from "dateformat";
 
 import { usePath } from "hooks";
-import { useProfiles } from "containers";
+import { useAuth, useProfiles } from "containers";
 
 import { FallBack } from "components/FallBack";
 import { getAge } from "utils/getAge";
 
 import { Carousel } from "./components";
 import css from "./style.module.scss";
+import { DeleteProfileConfirm } from "components/DeleteProfileConfirm";
 
 const Profile = () => {
   const { page } = usePath();
+  const { user } = useAuth();
   const { profiles, loading } = useProfiles();
   const [isOpenCarousel, setIsOpenCarousel] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | number | null>(
+    null,
+  );
 
   const breadCrumbs = page.path.split("/");
   const id = breadCrumbs[breadCrumbs.length - 1];
@@ -92,6 +97,32 @@ const Profile = () => {
                   })}
                 </div>
               </Box>
+              {user ? (
+                <Box
+                  sx={{
+                    width: "100%",
+                    maxWidth: 400,
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: 1,
+                    mt: 1,
+                  }}>
+                  <Button
+                    color="error"
+                    variant="contained"
+                    onClick={() => setDeleteConfirm(id)}>
+                    Delete Profile
+                  </Button>
+                  <Button
+                    color="info"
+                    variant="contained"
+                    onClick={(e) => {
+                      page.navigate(`edit/${id}`);
+                    }}>
+                    Edit Profile
+                  </Button>
+                </Box>
+              ) : null}
             </Box>
             <Box className={css.data}>
               {isWithMainContent ? (
@@ -159,7 +190,7 @@ const Profile = () => {
               {etc ? (
                 <Typography
                   sx={{
-                    whiteSpace: "pre",
+                    whiteSpace: "pre-wrap",
                   }}>
                   {etc}
                 </Typography>
@@ -176,6 +207,11 @@ const Profile = () => {
           pictures={photos.map(({ link }) => link)}
         />
       )}
+
+      <DeleteProfileConfirm
+        profileId={deleteConfirm}
+        setProfileId={setDeleteConfirm}
+      />
     </>
   );
 };

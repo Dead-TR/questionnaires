@@ -1,28 +1,27 @@
-import { Fragment, useState } from "react";
-import {
-  Box,
-  Button,
-  Container,
-  Modal,
-  Pagination,
-  Typography,
-} from "@mui/material";
+import { Fragment, useMemo, useState } from "react";
+import { Pagination } from "@mui/material";
 
 import { useProfiles } from "containers";
-import { getAge } from "utils/getAge";
 import { FallBack } from "components/FallBack";
 
 import css from "./style.module.scss";
 import { ProfileCard } from "./Card";
+import { DeleteProfileConfirm } from "components/DeleteProfileConfirm";
+import { usePath } from "hooks";
 
 const maxProfilesPerPage = 20;
 
 const Home = () => {
-  const { profiles, removeProfile, loading } = useProfiles();
-
-  const [deleteUserId, setDeleteUserId] = useState<number | string | null>(
-    null,
-  );
+  const { page: nav } = usePath();
+  const {
+    profiles,
+    loading,
+    favorites,
+    changeFavorites: addToFavorites,
+  } = useProfiles();
+  const [deleteProfileId, setDeleteProfileId] = useState<
+    number | string | null
+  >(null);
 
   const [page, setPage] = useState(1);
 
@@ -39,6 +38,11 @@ const Home = () => {
     Object.values(profiles).length / maxProfilesPerPage,
   );
 
+  const isFavorites = useMemo(
+    () => nav.path.substring(1) === "favorites",
+    [nav.path],
+  );
+
   return (
     <>
       <Pagination
@@ -47,8 +51,15 @@ const Home = () => {
         onChange={(e, page) => changePage(page)}
       />
       <div className={css.root}>
-        {Object.entries(profiles).map(
-          ([id, { birthday = Infinity, photos, ...etc }], i) => {
+        {Object.entries(profiles)
+          .filter(([id]) => {
+            if (isFavorites) {
+              return favorites[id];
+            } else {
+              return true;
+            }
+          })
+          .map(([id, { birthday = Infinity, photos, ...etc }], i) => {
             if (
               i < (page - 1) * maxProfilesPerPage ||
               i >= page * maxProfilesPerPage
@@ -63,13 +74,14 @@ const Home = () => {
                     photos,
                     ...etc,
                     id,
-                    handleRemove: setDeleteUserId,
+                    handleRemove: setDeleteProfileId,
+                    isFavorite: !!favorites[id],
+                    setFavorite: addToFavorites,
                   }}
                 />
               </Fragment>
             );
-          },
-        )}
+          })}
       </div>
       <FallBack show={loading} />
 
@@ -81,41 +93,10 @@ const Home = () => {
         />
       )}
 
-      <Modal
-        open={!!deleteUserId}
-        onClose={() => setDeleteUserId(null)}
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}>
-        <Container
-          sx={{
-            background: "white",
-            display: "flex",
-            flexDirection: "column",
-            width: "fit-content",
-            p: 2,
-            borderRadius: 2,
-          }}>
-          <Typography
-            sx={{
-              mb: 4,
-            }}>
-            Are you sure you want to delete the profile?
-          </Typography>
-          <Box sx={{ mx: "auto" }}>
-            <Button
-              onClick={() => {
-                removeProfile("" + deleteUserId);
-                setDeleteUserId(null);
-              }}>
-              Yes
-            </Button>
-            <Button onClick={() => setDeleteUserId(null)}>No</Button>
-          </Box>
-        </Container>
-      </Modal>
+      <DeleteProfileConfirm
+        profileId={deleteProfileId}
+        setProfileId={setDeleteProfileId}
+      />
     </>
   );
 };

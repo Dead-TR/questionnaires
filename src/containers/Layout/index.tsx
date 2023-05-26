@@ -15,16 +15,14 @@ import { useAuth } from "containers/Providers";
 import { usePath } from "hooks";
 
 import { Routes } from "./routeComponents";
+import { navigate, useAdminPopUp } from "./config";
 
 const Layout = () => {
   const { page } = usePath();
-  const { user, sightOut } = useAuth();
+  const { user } = useAuth();
   const theme = useTheme();
   const avatar = useRef<HTMLDivElement>(null);
-
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleClose = () => setIsOpen(false);
+  const { isOpen, handleClose, handleOpen, buttons } = useAdminPopUp();
 
   return (
     <>
@@ -47,33 +45,21 @@ const Layout = () => {
         sx={{
           mt: 0.5,
         }}>
-        <Box>
-          <Button
-            sx={{
-              py: 1,
-              px: 2,
-            }}
-            onClick={() => {
-              page.navigate("/create");
-              handleClose();
-            }}>
-            Add Profile
-          </Button>
-        </Box>
-
-        <Box>
-          <Button
-            sx={{
-              py: 1,
-              px: 2,
-              width: "100%",
-            }}
-            onClick={() => {
-              sightOut();
-              handleClose();
-            }}>
-            Log Out
-          </Button>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+          }}>
+          {buttons.map(({ onClick, text }) => (
+            <Button
+              sx={{
+                py: 1,
+                px: 2,
+              }}
+              onClick={onClick}>
+              {text}
+            </Button>
+          ))}
         </Box>
       </Popover>
 
@@ -86,20 +72,24 @@ const Layout = () => {
               justifyContent: "space-between",
               alignItems: "center",
             }}>
-            <Button
-              onClick={() => page.navigate("/")}
-              sx={{
-                my: 0,
-                color: "white",
-                height: 50,
-                borderRadius: 0,
-                textTransform: "capitalize",
-              }}>
-              Profiles
-            </Button>
+            <Box>
+              {navigate.map(({ link, text }) => (
+                <Button
+                  onClick={() => page.navigate(link)}
+                  sx={{
+                    my: 0,
+                    color: "white",
+                    height: 50,
+                    borderRadius: 0,
+                    textTransform: "capitalize",
+                  }}>
+                  {text}
+                </Button>
+              ))}
+            </Box>
 
             {user && (
-              <Button onClick={() => setIsOpen(true)}>
+              <Button onClick={handleOpen}>
                 <Avatar
                   ref={avatar}
                   sx={{ width: 35, height: 35, bgcolor: "#0099ff" }}>

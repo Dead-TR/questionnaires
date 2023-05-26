@@ -1,10 +1,13 @@
 import React, { FC, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import clsx from "clsx";
+
 import { Box, Button, Card, Typography } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
-import clsx from "clsx";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 
 import { createTimeouts } from "utils";
 import { useAuth } from "containers";
@@ -17,6 +20,8 @@ import css from "./../style.module.scss";
 
 interface Props extends FrontProfile {
   id: string;
+  isFavorite: boolean;
+  setFavorite: (id: string) => void;
   handleRemove: (id: string | number) => void;
 }
 
@@ -33,6 +38,8 @@ export const ProfileCard: FC<Props> = ({
   photos,
   weight,
   id,
+  isFavorite,
+  setFavorite,
   handleRemove,
 }) => {
   const { user } = useAuth();
@@ -73,7 +80,7 @@ export const ProfileCard: FC<Props> = ({
           <Box
             sx={{
               position: "absolute",
-              right: -8,
+              left: -8,
               top: -8,
               zIndex: 2,
               display: "flex",
@@ -106,6 +113,37 @@ export const ProfileCard: FC<Props> = ({
           </Box>
         </>
       )}
+
+      <Box
+        sx={{
+          position: "absolute",
+          right: 0,
+          top: 0,
+          zIndex: 2,
+          display: "flex",
+          flexDirection: "column",
+          gap: 0.5,
+        }}>
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            setFavorite(id);
+          }}
+          className={css.adminButton}
+          sx={{
+            color: "red",
+            transform: "scale(1) !important",
+            opacity: 1 + "!important",
+          }}>
+          {isFavorite ? (
+            <FavoriteIcon color="error" />
+          ) : (
+            <FavoriteBorderIcon color="error" />
+          )}
+        </Button>
+      </Box>
+
       <Card
         variant="elevation"
         sx={{

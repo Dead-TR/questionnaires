@@ -9,9 +9,3 @@ export const fireBaseApp = initializeApp(fireBaseConfig);
 export const fireBaseAnalytics = getAnalytics(fireBaseApp);
 export const fireBaseStorage = getStorage(fireBaseApp);
 export const fireBaseDataBase = getFirestore(fireBaseApp);
-
-/**Deploy:
- * firebase login
- * firebase init
- * firebase deploy
- */

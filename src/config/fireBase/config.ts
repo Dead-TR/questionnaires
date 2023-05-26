@@ -14,5 +14,4 @@ export const fireBaseConfig = {
   messagingSenderId,
   appId,
   measurementId,
-
 };
