@@ -1,7 +1,7 @@
 {
   "name": "date",
   "version": "0.1.0",
-  "homepage": ".",
+  "homepage": "questionnaires/",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.11.0",
@@ -15,6 +15,7 @@
     "dateformat": "^5.0.3",
     "dayjs": "^1.11.7",
     "firebase": "^9.21.0",
+    "gh-pages": "^5.0.0",
     "html-react-parser": "^3.0.6",
     "image-resize-compress": "^1.1.0",
     "intersection-observer-polyfill": "^0.1.0",
@@ -37,10 +38,10 @@
   "scripts": {
     "start": "react-scripts --max_old_space_size=4096 start",
     "build": "react-scripts --max_old_space_size=4096 build",
-    "deploy": "node deploy.js",
     "build-deploy": "yarn build && yarn deploy",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "deploy": "gh-pages -d build",
     "analyze-build": "react-scripts --max_old_space_size=4096 build --stats",
     "analyze": "webpack-bundle-analyzer build/bundle-stats.json"
   },
