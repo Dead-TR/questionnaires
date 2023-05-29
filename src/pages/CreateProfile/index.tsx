@@ -35,7 +35,6 @@ const CreateProfile = () => {
     photo: "",
   });
   const [photos, setPhotos] = useState<PhotosState[]>([]);
-  console.log("🚀 ~ file: index.tsx:38 ~ CreateProfile ~ photos:", photos);
   const [deletedPhotos, setDeletedPhotos] = useState<string[]>([]);
   const [state, setState] = useState<ProfileState>({
     name: "",
@@ -268,7 +267,6 @@ const CreateProfile = () => {
                         })
                       : file;
 
-                  console.log("🚀 ~ ~> ", preparedFile);
                   return {
                     file: preparedFile,
                     link: URL.createObjectURL(preparedFile),

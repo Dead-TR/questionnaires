@@ -58,7 +58,8 @@ After the deployment is complete, you will receive a hosting URL where your prof
 ## Usage
 Follow the steps below to use the profiles manager app:
 1. In the Firebase console, create a user who will be the administrator of the profiles manager.
-2. Set the necessary security rules for Firestore Database and Storage. Use the following rules as an example:
+2. Set the necessary security rules for Firestore Database and Storage. Use the following rules:
+- Database:
 ```php
 rules_version = '2';
 service cloud.firestore {
@@ -66,6 +67,18 @@ service cloud.firestore {
     match /{document=**} {
       allow write: if request.auth.uid == "user_id";
       allow read;
+    }
+  }
+}
+```
+- Storage:
+```php
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      		allow write: if request.auth.uid == "user_id";
+					allow read;
     }
   }
 }
