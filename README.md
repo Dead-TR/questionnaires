@@ -1,4 +1,4 @@
-# Catalog of Dating Profiles.
+# Catalog of profiles for the Marriage Agency
 
 This documentation provides instructions on installation and usage of the simple profiles manager, a React app created with create-react-app.
 
